@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+ecoquest_db.json
+mongo_start.log
+*.db
+.pytest_cache/
+.DS_Store
+.env

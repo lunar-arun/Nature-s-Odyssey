@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoQuest - Carbon Footprint Awareness Challenge</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        eco: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                            950: '#052e16',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-eco-950 text-slate-100 min-h-screen font-sans overflow-x-hidden">
+
+    <!-- Accessibility Live Announcer for Assistive Technologies -->
+    <div id="accessibility-announcer" class="sr-only" aria-live="polite" role="status"></div>
+
+    <!-- Auth Container -->
+    <div id="auth-container" class="fixed inset-0 z-50 flex items-center justify-center bg-eco-950 px-4">
+        <!-- Floating Eco Elements background -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
+            <i class="fa-solid fa-leaf text-9xl text-eco-400 absolute top-10 left-10 animate-bounce" style="animation-duration: 6s;" aria-hidden="true"></i>
+            <i class="fa-solid fa-cloud text-9xl text-eco-200 absolute top-1/4 right-20 animate-pulse" style="animation-duration: 8s;" aria-hidden="true"></i>
+            <i class="fa-solid fa-seedling text-9xl text-eco-400 absolute bottom-10 left-1/3 animate-bounce" style="animation-duration: 5s;" aria-hidden="true"></i>
+            <i class="fa-solid fa-tree text-9xl text-eco-500 absolute bottom-1/4 right-1/4 animate-pulse" style="animation-duration: 10s;" aria-hidden="true"></i>
+        </div>
+
+        <!-- Glassmorphism Card -->
+        <div class="relative bg-slate-900/60 backdrop-blur-xl border border-eco-500/20 p-8 rounded-3xl w-full max-w-md shadow-2xl shadow-eco-900/50">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-eco-500/10 border border-eco-500/30 text-eco-400 text-3xl mb-4 animate-pulse">
+                    <i class="fa-solid fa-earth-americas" aria-hidden="true"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-white">EcoQuest</h1>
+                <p class="text-eco-300 text-sm mt-1">Become an Eco Guardian & save the planet!</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label for="login-username" class="block text-xs font-semibold uppercase tracking-wider text-eco-300 mb-2">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-eco-500/60" aria-hidden="true"></i>
+                        <input type="text" id="login-username" required class="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-eco-800/60 rounded-xl focus:outline-none focus:border-eco-500 text-white placeholder-eco-800/40 text-sm transition-all" placeholder="Enter username">
+                    </div>
+                </div>
+                <div>
+                    <label for="login-password" class="block text-xs font-semibold uppercase tracking-wider text-eco-300 mb-2">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-eco-500/60" aria-hidden="true"></i>
+                        <input type="password" id="login-password" required class="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-eco-800/60 rounded-xl focus:outline-none focus:border-eco-500 text-white placeholder-eco-800/40 text-sm transition-all" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" id="btn-login-submit" class="w-full py-3 bg-eco-600 hover:bg-eco-500 active:bg-eco-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-eco-600/30 flex items-center justify-center gap-2">
+                    <span>Sign In</span>
+                    <i class="fa-solid fa-right-to-bracket text-sm" aria-hidden="true"></i>
+                </button>
+                <p class="text-center text-xs text-slate-400 mt-4">
+                    Don't have an account? 
+                    <button type="button" id="switch-to-register" class="text-eco-400 hover:underline font-semibold focus:outline-none">Sign Up</button>
+                </p>
+            </form>
+
+            <!-- Register Form (Hidden Initially) -->
+            <form id="register-form" class="space-y-5 hidden">
+                <div>
+                    <label for="reg-username" class="block text-xs font-semibold uppercase tracking-wider text-eco-300 mb-2">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-eco-500/60" aria-hidden="true"></i>
+                        <input type="text" id="reg-username" required class="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-eco-800/60 rounded-xl focus:outline-none focus:border-eco-500 text-white placeholder-eco-800/40 text-sm transition-all" placeholder="Choose username">
+                    </div>
+                </div>
+                <div>
+                    <label for="reg-email" class="block text-xs font-semibold uppercase tracking-wider text-eco-300 mb-2">Email Address</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-eco-500/60" aria-hidden="true"></i>
+                        <input type="email" id="reg-email" required class="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-eco-800/60 rounded-xl focus:outline-none focus:border-eco-500 text-white placeholder-eco-800/40 text-sm transition-all" placeholder="you@example.com">
+                    </div>
+                </div>
+                <div>
+                    <label for="reg-password" class="block text-xs font-semibold uppercase tracking-wider text-eco-300 mb-2">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-eco-500/60" aria-hidden="true"></i>
+                        <input type="password" id="reg-password" required class="w-full pl-11 pr-4 py-3 bg-slate-950/80 border border-eco-800/60 rounded-xl focus:outline-none focus:border-eco-500 text-white placeholder-eco-800/40 text-sm transition-all" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" id="btn-register-submit" class="w-full py-3 bg-eco-600 hover:bg-eco-500 active:bg-eco-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-eco-600/30 flex items-center justify-center gap-2">
+                    <span>Create Guardian</span>
+                    <i class="fa-solid fa-user-plus text-sm" aria-hidden="true"></i>
+                </button>
+                <p class="text-center text-xs text-slate-400 mt-4">
+                    Already have an account? 
+                    <button type="button" id="switch-to-login" class="text-eco-400 hover:underline font-semibold focus:outline-none">Sign In</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Layout -->
+    <div id="app-container" class="hidden flex flex-col md:flex-row min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-slate-900/80 backdrop-blur-md border-r border-eco-500/10 flex flex-col flex-shrink-0 z-30">
+            <!-- App Brand Info -->
+            <div class="p-6 border-b border-eco-500/10 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-eco-500/20 flex items-center justify-center text-eco-400 border border-eco-500/30">
+                    <i class="fa-solid fa-leaf text-xl" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-extrabold text-white tracking-tight">EcoQuest</h2>
+                    <span class="text-xs text-eco-400 uppercase tracking-widest font-semibold">Eco Guardian</span>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 p-4 space-y-1" role="tablist" aria-label="Sidebar Navigation">
+                <button id="nav-dashboard" role="tab" aria-selected="true" aria-controls="view-dashboard" class="nav-btn active flex items-center w-full px-4 py-3 text-slate-300 hover:text-white rounded-xl gap-3 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-chart-pie text-lg text-eco-500" aria-hidden="true"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button id="nav-adventure" role="tab" aria-selected="false" aria-controls="view-adventure" class="nav-btn flex items-center w-full px-4 py-3 text-slate-300 hover:text-white rounded-xl gap-3 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-map text-lg text-eco-500" aria-hidden="true"></i>
+                    <span>Adventure Map</span>
+                    <span class="ml-auto text-[10px] bg-red-500/90 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse">Live</span>
+                </button>
+                <button id="nav-log" role="tab" aria-selected="false" aria-controls="view-log" class="nav-btn flex items-center w-full px-4 py-3 text-slate-300 hover:text-white rounded-xl gap-3 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-circle-plus text-lg text-eco-500" aria-hidden="true"></i>
+                    <span>Log Actions</span>
+                </button>
+                <button id="nav-quests" role="tab" aria-selected="false" aria-controls="view-quests" class="nav-btn flex items-center w-full px-4 py-3 text-slate-300 hover:text-white rounded-xl gap-3 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-calendar-check text-lg text-eco-500" aria-hidden="true"></i>
+                    <span>Daily Quests</span>
+                    <span id="quests-badge" class="ml-auto bg-eco-500/20 text-eco-400 border border-eco-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+                </button>
+                <button id="nav-shop" role="tab" aria-selected="false" aria-controls="view-shop" class="nav-btn flex items-center w-full px-4 py-3 text-slate-300 hover:text-white rounded-xl gap-3 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-store text-lg text-eco-500" aria-hidden="true"></i>
+                    <span>Eco Shop</span>
+                </button>
+                <button id="nav-leaderboard" role="tab" aria-selected="false" aria-controls="view-leaderboard" class="nav-btn flex items-center w-full px-4 py-3 text-slate-300 hover:text-white rounded-xl gap-3 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-trophy text-lg text-eco-500" aria-hidden="true"></i>
+                    <span>Leaderboard</span>
+                </button>
+                <button id="nav-assistant" role="tab" aria-selected="false" aria-controls="view-assistant" class="nav-btn flex items-center w-full px-4 py-3 text-slate-300 hover:text-white rounded-xl gap-3 text-sm font-semibold transition-all">
+                    <i class="fa-solid fa-robot text-lg text-eco-500" aria-hidden="true"></i>
+                    <span>Eco Assistant</span>
+                </button>
+            </nav>
+
+            <!-- User Status Widget in Nav Footer -->
+            <div id="nav-user-widget" class="p-4 border-t border-eco-500/10 bg-slate-950/40">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-eco-600/30 border border-eco-500/40 flex items-center justify-center text-eco-400 font-bold relative" id="avatar-container">
+                        <span id="nav-avatar-char">E</span>
+                        <div id="equipped-pet-badge" class="absolute -bottom-1 -right-1 bg-slate-900 border border-eco-500/30 rounded-full text-xs p-0.5 hidden">🦊</div>
+                    </div>
+                    <div class="min-w-0">
+                        <h4 id="nav-username" class="text-sm font-bold text-white truncate">EcoGuardian</h4>
+                        <span id="nav-level-badge" class="text-[10px] bg-eco-500/20 text-eco-400 font-bold px-1.5 py-0.5 rounded border border-eco-500/30">Level 1</span>
+                    </div>
+                </div>
+                <button id="btn-logout" class="w-full mt-4 py-2 border border-red-500/30 hover:bg-red-500/10 text-red-400 hover:text-red-300 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 focus:outline-none">
+                    <i class="fa-solid fa-power-off" aria-hidden="true"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            <!-- Header Bar -->
+            <header class="h-16 bg-slate-900/60 backdrop-blur border-b border-eco-500/10 px-6 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <h3 id="current-view-title" class="text-lg font-bold text-white uppercase tracking-wider">Dashboard</h3>
+                </div>
+                
+                <!-- Stats Pill Header -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-slate-950/60 border border-eco-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
+                        <i class="fa-solid fa-coins text-amber-500 animate-spin" style="animation-duration: 4s;"></i>
+                        <span id="header-coins" class="text-sm font-extrabold text-amber-400">100</span>
+                    </div>
+                    <div class="bg-slate-950/60 border border-eco-500/20 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
+                        <i class="fa-solid fa-clover text-emerald-400 animate-pulse"></i>
+                        <span id="header-co2" class="text-sm font-extrabold text-emerald-400">0.0 kg</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Panels -->
+            <div class="p-6 flex-1 space-y-6">
+
+                <!-- Toast Notifications container -->
+                <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-3 pointer-events-none"></div>
+
+                <!-- DASHBOARD VIEW -->
+                <div id="view-dashboard" class="view-panel space-y-6" role="tabpanel" aria-labelledby="nav-dashboard">
+                    <!-- Banner Info -->
+                    <div class="relative bg-gradient-to-r from-eco-900 to-slate-900 border border-eco-500/20 rounded-3xl p-6 overflow-hidden">
+                        <div class="absolute right-0 top-0 bottom-0 opacity-10 flex items-center justify-center pointer-events-none p-6 text-9xl text-eco-400">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <div class="relative z-10 max-w-2xl">
+                            <h2 class="text-2xl font-bold text-white mb-2">Welcome Back, Eco Guardian!</h2>
+                            <p class="text-eco-200 text-sm leading-relaxed mb-4">Every clean action you log, every item you recycle in the adventure map, and every energy conservation step helps restore the polluted city. Level up to restore beautiful rivers, forests, and build a futuristic sustainable city!</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-eco-500 text-eco-950 font-bold px-2 py-1 rounded-full uppercase tracking-wider">Current Stage</span>
+                                <span id="dash-stage-badge" class="text-xs border border-eco-500/40 text-eco-300 font-bold px-2 py-1 rounded-full uppercase tracking-wider">Polluted City</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top level stats widgets -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- XP progress -->
+                        <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-slate-300 text-xs font-semibold uppercase tracking-wider">XP & Level</h4>
+                                <div class="w-8 h-8 rounded-lg bg-eco-500/10 border border-eco-500/30 text-eco-400 flex items-center justify-center">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-baseline mb-2">
+                                    <span id="dash-level-text" class="text-2xl font-black text-white">Level 1</span>
+                                    <span id="dash-xp-fraction" class="text-xs text-eco-300">0 / 100 XP</span>
+                                </div>
+                                <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-eco-900">
+                                    <div id="dash-xp-bar" class="bg-gradient-to-r from-eco-500 to-emerald-400 h-full rounded-full transition-all" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carbon Savings -->
+                        <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-slate-300 text-xs font-semibold uppercase tracking-wider">Total CO₂ Reduction</h4>
+                                <div class="w-8 h-8 rounded-lg bg-eco-500/10 border border-eco-500/30 text-eco-400 flex items-center justify-center">
+                                    <i class="fa-solid fa-leaf"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <span id="dash-co2-saved" class="text-3xl font-black text-emerald-400">0.0 kg</span>
+                                <p id="dash-co2-equivalency" class="text-xs text-slate-400 mt-2">Equivalent to saving 0 lightbulb hours.</p>
+                            </div>
+                        </div>
+
+                        <!-- Eco Coins -->
+                        <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl flex flex-col justify-between">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-slate-300 text-xs font-semibold uppercase tracking-wider">Eco Coins Balance</h4>
+                                <div class="w-8 h-8 rounded-lg bg-eco-500/10 border border-eco-500/30 text-eco-400 flex items-center justify-center">
+                                    <i class="fa-solid fa-coins"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <span id="dash-eco-coins" class="text-3xl font-black text-amber-400">100</span>
+                                <p class="text-xs text-slate-400 mt-2">Spend in Shop to unlock Skins & Pets!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quests & Achievements split -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Left: Quests & Assistant Tips -->
+                        <div class="space-y-6">
+                            <!-- Quests Card -->
+                            <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-md font-bold text-white">Active Daily Quests</h3>
+                                    <button onclick="switchTab('quests')" class="text-xs text-eco-400 hover:text-eco-300 font-semibold flex items-center gap-1 focus:outline-none">
+                                        <span>View All</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                                <div id="dash-quests-list" class="space-y-3">
+                                    <!-- Rendered dynamically -->
+                                    <p class="text-slate-400 text-sm italic">Loading quests...</p>
+                                </div>
+                            </div>
+
+                            <!-- Smart recommendation quick-widget -->
+                            <div class="bg-eco-900/20 border border-eco-500/20 p-5 rounded-2xl flex gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-eco-500/10 border border-eco-500/30 text-eco-400 flex items-center justify-center text-xl flex-shrink-0">
+                                    <i class="fa-solid fa-robot"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white mb-1">Eco Assistant Suggestion</h4>
+                                    <p id="dash-assistant-tip" class="text-xs text-eco-200 leading-relaxed">Analyzing your habits...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Achievements -->
+                        <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                            <h3 class="text-md font-bold text-white mb-4">Guardian Badges & Achievements</h3>
+                            <div id="dash-achievements-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <!-- Achievements cards will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities -->
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-md font-bold text-white mb-4">Recent Activities</h3>
+                        <div id="dash-activities-list" class="divide-y divide-eco-500/5 max-h-60 overflow-y-auto">
+                            <!-- Populated dynamically -->
+                            <p class="text-slate-400 text-sm py-4 italic text-center">No actions logged yet. Go to 'Log Actions' or play the 'Adventure Map' to get started!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADVENTURE MAP / CANVAS VIEW -->
+                <div id="view-adventure" class="view-panel space-y-6 hidden" role="tabpanel" aria-labelledby="nav-adventure">
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl flex flex-col items-center">
+                        <div class="text-center mb-4 max-w-lg">
+                            <h3 class="text-xl font-bold text-white">Eco Guardian's Adventure</h3>
+                            <p class="text-slate-400 text-xs mt-1">Control your character using <span class="bg-slate-950 px-2 py-0.5 border border-eco-800/40 rounded text-eco-400 font-mono">Arrow Keys</span> (Left/Right) and jump with <span class="bg-slate-950 px-2 py-0.5 border border-eco-800/40 rounded text-eco-400 font-mono">Space Bar</span>. Catch floating recyclables, saplings, and light switches to boost your score!</p>
+                        </div>
+                        
+                        <!-- Game Canvas container -->
+                        <div class="relative bg-slate-950 rounded-2xl border-2 border-eco-500/30 overflow-hidden w-full max-w-[800px] aspect-[2/1] shadow-inner shadow-eco-900">
+                            <!-- Overlay stats on canvas -->
+                            <div class="absolute top-4 left-4 right-4 flex justify-between pointer-events-none z-10">
+                                <div class="bg-slate-900/80 backdrop-blur border border-eco-500/20 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 text-white">
+                                    <i class="fa-solid fa-gamepad text-eco-400" aria-hidden="true"></i>
+                                    <span id="canvas-stage-indicator">Stage: Polluted City</span>
+                                </div>
+                                <div class="bg-slate-900/80 backdrop-blur border border-eco-500/20 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 text-white">
+                                    <i class="fa-solid fa-recycle text-emerald-400" aria-hidden="true"></i>
+                                    <span id="canvas-score-indicator">Caught: 0 items</span>
+                                </div>
+                            </div>
+                            
+                            <canvas id="game-canvas" class="w-full h-full block bg-slate-900" tabindex="0" aria-label="Eco Guardian's Adventure Map Game. Press left or right arrow keys to walk, space bar to jump. Catch falling green items like bottles, lightbulbs, and seeds."></canvas>
+                        </div>
+
+                        <!-- Canvas Controls Switcher -->
+                        <div class="w-full max-w-[800px] mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-slate-950/60 border border-eco-500/10 p-4 rounded-xl">
+                                <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3"><i class="fa-solid fa-shirt text-eco-400 mr-2"></i>Quick Skin Changer</h4>
+                                <div id="canvas-skins-grid" class="flex gap-3">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+                            <div class="bg-slate-950/60 border border-eco-500/10 p-4 rounded-xl">
+                                <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3"><i class="fa-solid fa-dog text-eco-400 mr-2"></i>Equipped Pet</h4>
+                                <div id="canvas-pets-grid" class="flex gap-3">
+                                    <!-- Rendered dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LOG ACTIONS VIEW -->
+                <div id="view-log" class="view-panel space-y-6 hidden" role="tabpanel" aria-labelledby="nav-log">
+                    <!-- Grid of activities to log -->
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-lg font-bold text-white mb-2">Log Sustainable Actions</h3>
+                        <p class="text-slate-400 text-xs mb-6">Select a daily eco-friendly activity you completed in the real world to earn XP, coins, and register carbon savings.</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="actions-grid">
+                            <!-- Walk -->
+                            <button onclick="logActivity('Walking instead of driving')" class="flex items-center gap-4 bg-slate-950 border border-eco-800/40 hover:border-eco-500 p-4 rounded-xl text-left transition-all hover:scale-[1.02] group">
+                                <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-xl flex-shrink-0 group-hover:bg-sky-500/20">
+                                    <i class="fa-solid fa-person-walking"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-eco-400">Walking instead of Driving</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Saves 1.2 kg CO₂ | +50 XP</p>
+                                </div>
+                            </button>
+
+                            <!-- Transit -->
+                            <button onclick="logActivity('Using public transportation')" class="flex items-center gap-4 bg-slate-950 border border-eco-800/40 hover:border-eco-500 p-4 rounded-xl text-left transition-all hover:scale-[1.02] group">
+                                <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl flex-shrink-0 group-hover:bg-amber-500/20">
+                                    <i class="fa-solid fa-bus"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-eco-400">Using Public Transport</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Saves 0.8 kg CO₂ | +40 XP</p>
+                                </div>
+                            </button>
+
+                            <!-- Recycle -->
+                            <button onclick="logActivity('Recycling waste')" class="flex items-center gap-4 bg-slate-950 border border-eco-800/40 hover:border-eco-500 p-4 rounded-xl text-left transition-all hover:scale-[1.02] group">
+                                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl flex-shrink-0 group-hover:bg-emerald-500/20">
+                                    <i class="fa-solid fa-recycle"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-eco-400">Recycling Waste</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Saves 0.5 kg CO₂ | +30 XP</p>
+                                </div>
+                            </button>
+
+                            <!-- Bottle -->
+                            <button onclick="logActivity('Using reusable bottles')" class="flex items-center gap-4 bg-slate-950 border border-eco-800/40 hover:border-eco-500 p-4 rounded-xl text-left transition-all hover:scale-[1.02] group">
+                                <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl flex-shrink-0 group-hover:bg-indigo-500/20">
+                                    <i class="fa-solid fa-bottle-water"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-eco-400">Reusable Bottle</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Saves 0.2 kg CO₂ | +20 XP</p>
+                                </div>
+                            </button>
+
+                            <!-- Plant Trees -->
+                            <button onclick="logActivity('Planting trees')" class="flex items-center gap-4 bg-slate-950 border border-eco-800/40 hover:border-eco-500 p-4 rounded-xl text-left transition-all hover:scale-[1.02] group">
+                                <div class="w-12 h-12 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center text-xl flex-shrink-0 group-hover:bg-green-500/20">
+                                    <i class="fa-solid fa-tree"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-eco-400">Planting a Tree</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Saves 5.0 kg CO₂ | +100 XP</p>
+                                </div>
+                            </button>
+
+                            <!-- Vegetarian meal -->
+                            <button onclick="logActivity('Eating vegetarian meals')" class="flex items-center gap-4 bg-slate-950 border border-eco-800/40 hover:border-eco-500 p-4 rounded-xl text-left transition-all hover:scale-[1.02] group">
+                                <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl flex-shrink-0 group-hover:bg-rose-500/20">
+                                    <i class="fa-solid fa-carrot"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-eco-400">Eating Vegetarian Meal</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Saves 1.5 kg CO₂ | +60 XP</p>
+                                </div>
+                            </button>
+
+                            <!-- Save electricity -->
+                            <button onclick="logActivity('Saving electricity')" class="flex items-center gap-4 bg-slate-950 border border-eco-800/40 hover:border-eco-500 p-4 rounded-xl text-left transition-all hover:scale-[1.02] group">
+                                <div class="w-12 h-12 rounded-xl bg-yellow-500/10 text-yellow-400 flex items-center justify-center text-xl flex-shrink-0 group-hover:bg-yellow-500/20">
+                                    <i class="fa-solid fa-plug"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white group-hover:text-eco-400">Saving Electricity</h4>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Saves 0.6 kg CO₂ | +45 XP</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Custom Activity form -->
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl max-w-xl">
+                        <h3 class="text-md font-bold text-white mb-2">Log Other Custom Action</h3>
+                        <p class="text-slate-400 text-xs mb-4">Completed a green action not listed above? Log it here with a name.</p>
+                        
+                        <form id="custom-action-form" class="space-y-4">
+                            <div>
+                                <label for="custom-action-name" class="block text-xs font-semibold uppercase tracking-wider text-eco-300 mb-2">Action Name / Description</label>
+                                <input type="text" id="custom-action-name" required class="w-full px-4 py-3 bg-slate-950 border border-eco-800/60 rounded-xl focus:outline-none focus:border-eco-500 text-white placeholder-eco-800/30 text-sm transition-all" placeholder="e.g., Composted food waste, Installed LED bulbs">
+                            </div>
+                            <button type="submit" id="btn-custom-action-submit" class="w-full py-2.5 bg-eco-600 hover:bg-eco-500 active:bg-eco-700 text-white font-bold rounded-xl transition-all shadow-md shadow-eco-600/20 flex items-center justify-center gap-2">
+                                <span>Log Custom Action</span>
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- QUESTS VIEW -->
+                <div id="view-quests" class="view-panel space-y-6 hidden" role="tabpanel" aria-labelledby="nav-quests">
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-lg font-bold text-white mb-2">Active Daily Quests</h3>
+                        <p class="text-slate-400 text-xs mb-6">Complete these daily challenges to earn Eco Coins and massive XP rewards.</p>
+                        
+                        <div id="quests-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Daily quests generated here -->
+                            <p class="text-slate-400 text-sm italic col-span-3 text-center">Loading your daily quests...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SHOP VIEW -->
+                <div id="view-shop" class="view-panel space-y-6 hidden" role="tabpanel" aria-labelledby="nav-shop">
+                    
+                    <!-- Skins Section -->
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-shirt text-eco-400 mr-2"></i>Guardian Skins</h3>
+                        <p class="text-slate-400 text-xs mb-6">Change the visual appearance of your Eco Guardian on the game canvas.</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="shop-skins-container">
+                            <!-- Skins rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Pets Section -->
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                        <h3 class="text-lg font-bold text-white mb-2"><i class="fa-solid fa-dog text-eco-400 mr-2"></i>Companion Pets</h3>
+                        <p class="text-slate-400 text-xs mb-6">Unlock a cute companion pet that follows you around as you walk and jump in the adventure world.</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="shop-pets-container">
+                            <!-- Pets rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LEADERBOARD VIEW -->
+                <div id="view-leaderboard" class="view-panel space-y-6 hidden" role="tabpanel" aria-labelledby="nav-leaderboard">
+                    <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Global Leaderboard</h3>
+                                <p class="text-slate-400 text-xs mt-1">Top Eco Guardians sorted by Total Carbon Saved and XP Level.</p>
+                            </div>
+                            <button onclick="loadLeaderboard()" class="w-10 h-10 rounded-xl bg-slate-950 border border-eco-800/40 text-eco-400 hover:text-eco-300 flex items-center justify-center transition-all focus:outline-none" title="Refresh Leaderboard">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
+
+                        <!-- Leaderboard table -->
+                        <div class="overflow-x-auto rounded-xl border border-eco-500/10">
+                            <table class="w-full text-left border-collapse bg-slate-950/40">
+                                <thead>
+                                    <tr class="bg-slate-950 text-eco-300 text-xs uppercase tracking-wider border-b border-eco-500/10">
+                                        <th class="py-4 px-6 text-center font-bold">Rank</th>
+                                        <th class="py-4 px-6 font-bold">Guardian Name</th>
+                                        <th class="py-4 px-6 text-center font-bold">Level</th>
+                                        <th class="py-4 px-6 text-right font-bold">CO₂ Saved (kg)</th>
+                                        <th class="py-4 px-6 text-right font-bold">Total XP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboard-body" class="text-sm divide-y divide-eco-500/5">
+                                    <!-- Populated dynamically -->
+                                    <tr>
+                                        <td colspan="5" class="py-10 text-center text-slate-400 italic">Loading leaderboard data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMART ASSISTANT VIEW -->
+                <div id="view-assistant" class="view-panel space-y-6 hidden" role="tabpanel" aria-labelledby="nav-assistant">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Left: Robot character widget -->
+                        <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center text-center">
+                            <!-- Assistant avatar -->
+                            <div class="w-28 h-28 rounded-full bg-gradient-to-br from-eco-500 to-emerald-600 border border-eco-400 flex items-center justify-center text-white text-5xl mb-4 relative shadow-lg shadow-eco-500/20">
+                                <i class="fa-solid fa-robot animate-pulse"></i>
+                                <span class="absolute top-1 right-2 flex h-3 w-3">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">EcoBot v1.0</h3>
+                            <p class="text-eco-400 text-xs font-semibold">Your Personal Carbon Analyst</p>
+                            <div class="w-full bg-slate-950 border border-eco-800/40 p-4 rounded-xl mt-6 text-xs text-eco-200 leading-relaxed text-left relative">
+                                <div class="absolute -top-2 left-1/2 -translate-x-1/2 border-8 border-transparent border-b-slate-950"></div>
+                                <span class="font-bold text-white">EcoBot says:</span>
+                                <p id="assistant-bubble" class="mt-1">Analyzing your completed logs, current stage level, and search history to tailor some personalized suggestions...</p>
+                            </div>
+                            <button onclick="loadAssistant()" class="w-full mt-5 py-2.5 bg-eco-600 hover:bg-eco-500 text-white font-bold rounded-xl transition-all shadow-md shadow-eco-600/10 flex items-center justify-center gap-2 focus:outline-none">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>Recalculate Tips</span>
+                            </button>
+                        </div>
+
+                        <!-- Right: Recommendations Lists -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Recommendations -->
+                            <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                                <h3 class="text-md font-bold text-white mb-4"><i class="fa-solid fa-lightbulb text-amber-400 mr-2"></i>Personalized Eco Tips</h3>
+                                <div id="assistant-tips-container" class="space-y-4">
+                                    <!-- Tips rendered dynamically -->
+                                    <p class="text-slate-400 text-sm italic">Crunching stats...</p>
+                                </div>
+                            </div>
+
+                            <!-- Carbon saving opportunities -->
+                            <div class="bg-slate-900/60 border border-eco-500/10 p-6 rounded-2xl shadow-xl">
+                                <h3 class="text-md font-bold text-white mb-4"><i class="fa-solid fa-chart-line text-emerald-400 mr-2"></i>Carbon Savings Opportunities</h3>
+                                <div class="bg-slate-950/60 border border-eco-500/10 p-4 rounded-xl flex items-center gap-4">
+                                    <div class="text-3xl text-emerald-400">
+                                        <i class="fa-solid fa-angles-down"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-bold text-white">High Impact Action Plan</h4>
+                                        <p id="assistant-opportunity" class="text-xs text-slate-400 mt-1 leading-relaxed">Loading impact plan...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Javascript links -->
+    <script src="/static/js/game.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
