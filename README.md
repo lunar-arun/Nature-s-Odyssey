@@ -2,9 +2,6 @@
 
 > **[Challenge 3] Carbon Footprint Awareness Platform**  
 > *Design a solution that helps individuals understand, track, and reduce their carbon footprint through simple actions and personalized insights.*
-
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-On%20Render-brightgreen?style=for-the-badge)](https://nature-s-odyssey.onrender.com/)
-
 ---
 
 ## 📌 Project Overview
