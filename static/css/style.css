@@ -1,4 +1,4 @@
-/* Custom Styles for EcoQuest */
+/* Custom Styles for Nature's Odyssey */
 
 /* Active states for sidebar navigation */
 .nav-btn {
@@ -8,22 +8,32 @@
 }
 
 .nav-btn:hover {
-    background-color: rgba(34, 197, 94, 0.1);
+    background-color: var(--theme-glow-nav);
     transform: translateX(4px);
 }
 
 .nav-btn.active {
-    background: linear-gradient(90deg, rgba(22, 163, 74, 0.2) 0%, rgba(34, 197, 94, 0.05) 100%);
-    color: #4ade80 !important;
-    border-left: 4px solid #22c55e;
+    background: linear-gradient(90deg, var(--theme-glow-nav) 0%, rgba(255, 255, 255, 0.01) 100%);
+    color: var(--eco-400) !important;
+    border-left: 4px solid var(--eco-500);
 }
 
 /* Glassmorphism card backdrop */
-.glass-panel {
-    background: rgba(15, 23, 42, 0.65);
+.glass-panel, 
+#view-dashboard > div,
+#view-adventure > div,
+#view-log > div,
+#view-quests > div,
+#view-shop > div,
+#view-leaderboard > div,
+#view-assistant div.bg-slate-900\/60,
+aside,
+header {
+    background: var(--theme-card-bg) !important;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(34, 197, 94, 0.15);
+    border: 1px solid var(--theme-border) !important;
+    transition: background 1s ease, border 1s ease;
 }
 
 /* Scrollbars */
@@ -33,16 +43,16 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: #052e16;
+    background: var(--eco-950);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #15803d;
+    background: var(--eco-800);
     border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #22c55e;
+    background: var(--eco-500);
 }
 
 /* Achievement badge animations */
@@ -56,13 +66,13 @@
 
 .achievement-badge.unlocked {
     filter: grayscale(0) opacity(1);
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.25);
-    border-color: rgba(34, 197, 94, 0.5) !important;
+    box-shadow: 0 0 15px var(--theme-glow-nav);
+    border-color: var(--eco-500) !important;
 }
 
 .achievement-badge.unlocked:hover {
     transform: scale(1.05) rotate(2deg);
-    box-shadow: 0 0 25px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 0 25px var(--theme-glow-nav);
 }
 
 /* Toast animations */
@@ -105,7 +115,7 @@
     }
 }
 
-.floating-element {
+.floating-element, .fa-robot {
     animation: float 4s ease-in-out infinite;
 }
 
@@ -125,16 +135,124 @@
 
 /* Page fade transitions */
 .view-panel {
-    animation: fadeIn 0.40s ease-out;
+    animation: fadeIn 0.50s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(5px);
+        transform: scale(0.98) translateY(8px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1) translateY(0);
     }
+}
+
+/* Focus outlines for keyboard accessibility */
+button:focus-visible, 
+input:focus-visible, 
+canvas:focus-visible {
+    outline: 3px solid var(--eco-400) !important;
+    outline-offset: 2px;
+}
+
+/* Theme 1: Polluted City (Dull Slate/Gray) */
+.theme-polluted {
+    --eco-50: #ffffff;
+    --eco-100: #f1f5f9;
+    --eco-200: #e2e8f0;
+    --eco-300: #cbd5e1;
+    --eco-400: #94a3b8;
+    --eco-500: #64748b; /* Main Slate */
+    --eco-600: #475569;
+    --eco-700: #334155;
+    --eco-800: #1e293b;
+    --eco-900: #0f172a;
+    --eco-950: #090d16;
+    
+    --theme-glow-nav: rgba(100, 116, 139, 0.15);
+    --theme-card-bg: rgba(20, 27, 40, 0.75);
+    --theme-border: rgba(100, 116, 139, 0.15);
+    background: linear-gradient(135deg, #090d16 0%, #1c2331 100%) !important;
+}
+
+/* Theme 2: Recovering Forest (Soft Olive/Sage Green) */
+.theme-recovering {
+    --eco-50: #f7fee7;
+    --eco-100: #ecfccb;
+    --eco-200: #d9f99d;
+    --eco-300: #a3e635;
+    --eco-400: #84cc16; /* Soft Lime */
+    --eco-500: #65a30d;
+    --eco-600: #4d7c0f;
+    --eco-700: #3f6212;
+    --eco-800: #1a2e05;
+    --eco-900: #0f1f0a;
+    --eco-950: #050b03;
+    
+    --theme-glow-nav: rgba(101, 163, 13, 0.15);
+    --theme-card-bg: rgba(10, 20, 10, 0.8);
+    --theme-border: rgba(101, 163, 13, 0.18);
+    background: linear-gradient(135deg, #040905 0%, #152718 100%) !important;
+}
+
+/* Theme 3: Clean River Valley (Sky Blue/Teal) */
+.theme-river {
+    --eco-50: #f0f9ff;
+    --eco-100: #e0f2fe;
+    --eco-200: #bae6fd;
+    --eco-300: #7dd3fc;
+    --eco-400: #38bdf8;
+    --eco-500: #0ea5e9; /* Sky Blue */
+    --eco-600: #0284c7;
+    --eco-700: #0369a1;
+    --eco-800: #075985;
+    --eco-900: #0c4a6e;
+    --eco-950: #020f18;
+    
+    --theme-glow-nav: rgba(14, 165, 233, 0.15);
+    --theme-card-bg: rgba(5, 20, 35, 0.8);
+    --theme-border: rgba(14, 165, 233, 0.2);
+    background: linear-gradient(135deg, #010811 0%, #082235 100%) !important;
+}
+
+/* Theme 4: Mountain Sanctuary (Deep Emerald Green) */
+.theme-mountain {
+    --eco-50: #ecfdf5;
+    --eco-100: #d1fae5;
+    --eco-200: #a7f3d0;
+    --eco-300: #6ee7b7;
+    --eco-400: #34d399;
+    --eco-500: #10b981; /* Emerald */
+    --eco-600: #059669;
+    --eco-700: #047857;
+    --eco-800: #065f46;
+    --eco-900: #064e3b;
+    --eco-950: #020e0a;
+    
+    --theme-glow-nav: rgba(16, 185, 129, 0.15);
+    --theme-card-bg: rgba(4, 18, 12, 0.8);
+    --theme-border: rgba(16, 185, 129, 0.2);
+    background: linear-gradient(135deg, #010a06 0%, #0d3521 100%) !important;
+}
+
+/* Theme 5: Sustainable Future City (Vibrant Neon Green/Glassmorphism) */
+.theme-future {
+    --eco-50: #f0fdf4;
+    --eco-100: #dcfce7;
+    --eco-200: #bbf7d0;
+    --eco-300: #86efac;
+    --eco-400: #4ade80;
+    --eco-500: #22c55e; /* Vibrant Green */
+    --eco-600: #16a34a;
+    --eco-700: #15803d;
+    --eco-800: #166534;
+    --eco-900: #14532d;
+    --eco-950: #052e16;
+    
+    --theme-glow-nav: rgba(34, 197, 94, 0.2);
+    --theme-card-bg: rgba(15, 23, 42, 0.65);
+    --theme-border: rgba(34, 197, 94, 0.25);
+    background: linear-gradient(135deg, #010804 0%, #0b3d1c 100%) !important;
 }

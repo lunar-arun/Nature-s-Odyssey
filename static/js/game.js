@@ -1,4 +1,4 @@
-// EcoQuest 2D Canvas Game Engine
+// Nature's Odyssey 2D Canvas Game Engine
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 

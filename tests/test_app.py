@@ -1,252 +1,115 @@
 import os
-import json
-import tempfile
-import pytest
 import re
+from html.parser import HTMLParser
 
-# Set up test database env variables before importing app
-temp_db_fd, temp_db_path = tempfile.mkstemp()
-os.environ["MONGO_URI"] = "mongodb://invalid_uri_to_force_fallback:27017/"
-os.environ["MOCK_DB_PATH"] = temp_db_path
-os.environ["FLASK_SECRET_KEY"] = "test-secret-key-999"
-os.environ["FLASK_ENV"] = "testing"
+# Helper parser to extract tag details for validation
+class StaticHTMLParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.tags = []
+        self.h1_count = 0
+        self.canvas_attrs = {}
+        self.inputs = []
+        self.labels = []
+        self.live_regions = []
+        self.nav_tabs = []
 
-from app import app, db, LOGIN_LIMITS
+    def handle_starttag(self, tag, attrs):
+        attr_dict = dict(attrs)
+        self.tags.append((tag, attr_dict))
+        
+        if tag == 'h1':
+            self.h1_count += 1
+        elif tag == 'canvas':
+            if attr_dict.get('id') == 'game-canvas':
+                self.canvas_attrs = attr_dict
+        elif tag == 'input':
+            self.inputs.append(attr_dict)
+        elif tag == 'label':
+            self.labels.append(attr_dict)
+        elif attr_dict.get('aria-live'):
+            self.live_regions.append(attr_dict)
+        elif attr_dict.get('role') == 'tab' or attr_dict.get('role') == 'tablist':
+            self.nav_tabs.append((tag, attr_dict))
 
-@pytest.fixture
-def client():
-    app.config["TESTING"] = True
-    app.config["WTF_CSRF_ENABLED"] = False
-    
-    # Clear rate limit logs
-    LOGIN_LIMITS.clear()
-    
-    with app.test_client() as client:
-        with app.app_context():
-            # Reset database file
-            if os.path.exists(temp_db_path):
-                with open(temp_db_path, "w") as f:
-                    json.dump({}, f)
-            yield client
+def test_index_html_existence():
+    """Verify index.html exists at the project root."""
+    assert os.path.exists("index.html"), "index.html must be located at the root of the workspace"
 
-    # Cleanup database file
-    try:
-        os.close(temp_db_fd)
-        if os.path.exists(temp_db_path):
-            os.unlink(temp_db_path)
-    except Exception:
-        pass
+def test_static_assets_integrity():
+    """Verify index.html links to correct, existing relative static asset paths."""
+    assert os.path.exists("index.html")
+    with open("index.html", "r", encoding="utf-8") as f:
+        html = f.read()
 
-def test_security_headers(client):
-    res = client.get("/")
-    assert res.status_code == 200
-    assert "Content-Security-Policy" in res.headers
-    assert res.headers["X-Frame-Options"] == "DENY"
-    assert res.headers["X-Content-Type-Options"] == "nosniff"
-    assert res.headers["Referrer-Policy"] == "strict-origin-when-cross-origin"
+    # Search for relative asset links (supporting cache-busting queries)
+    css_match = re.search(r'href="static/css/style.css(?:\?v=\d+\.\d+)?"', html)
+    game_js_match = re.search(r'src="static/js/game.js(?:\?v=\d+\.\d+)?"', html)
+    app_js_match = re.search(r'src="static/js/app.js(?:\?v=\d+\.\d+)?"', html)
 
-def test_auth_register_and_login(client):
-    # 1. Test missing fields
-    res = client.post("/api/auth/register", json={
-        "username": "",
-        "email": "test@test.com",
-        "password": "password123"
-    })
-    assert res.status_code == 400
-    
-    # 2. Test invalid email
-    res = client.post("/api/auth/register", json={
-        "username": "eco_test",
-        "email": "invalidemail",
-        "password": "password123"
-    })
-    assert res.status_code == 400
-    assert "Invalid email" in res.get_json()["error"]
-    
-    # 3. Test short password
-    res = client.post("/api/auth/register", json={
-        "username": "eco_test",
-        "email": "test@test.com",
-        "password": "short"
-    })
-    assert res.status_code == 400
-    assert "Password must be" in res.get_json()["error"]
-    
-    # 4. Successful registration
-    res = client.post("/api/auth/register", json={
-        "username": "eco_test",
-        "email": "test@test.com",
-        "password": "password123"
-    })
-    assert res.status_code == 200
-    data = res.get_json()
-    assert data["success"] == "Registration successful"
-    assert data["user"]["username"] == "eco_test"
-    assert data["user"]["level"] == 1
-    assert data["user"]["eco_coins"] == 100
-    
-    # 5. Duplicate username
-    res = client.post("/api/auth/register", json={
-        "username": "eco_test",
-        "email": "test2@test.com",
-        "password": "password123"
-    })
-    assert res.status_code == 400
-    assert "already exists" in res.get_json()["error"]
+    assert css_match, "index.html must link to relative static/css/style.css"
+    assert game_js_match, "index.html must link to relative static/js/game.js"
+    assert app_js_match, "index.html must link to relative static/js/app.js"
 
-    # 6. Logout
-    res = client.post("/api/auth/logout")
-    assert res.status_code == 200
-    
-    # 7. Login successful
-    res = client.post("/api/auth/login", json={
-        "username": "eco_test",
-        "password": "password123"
-    })
-    assert res.status_code == 200
-    assert res.get_json()["success"] == "Login successful"
-    
-    # 8. Login incorrect password
-    res = client.post("/api/auth/login", json={
-        "username": "eco_test",
-        "password": "wrong_password"
-    })
-    assert res.status_code == 401
+    # Confirm files exist on disk
+    assert os.path.exists("static/css/style.css"), "static/css/style.css file is missing"
+    assert os.path.exists("static/js/game.js"), "static/js/game.js file is missing"
+    assert os.path.exists("static/js/app.js"), "static/js/app.js file is missing"
 
-def test_nosql_injection_prevention(client):
-    # Try sending Mongo operator inside username parameter
-    res = client.post("/api/auth/login", json={
-        "username": {"$gt": ""},
-        "password": "password123"
-    })
-    assert res.status_code == 400
-    assert "Invalid request parameters" in res.get_json()["error"]
+def test_accessibility_compliance():
+    """Verify accessibility markers in index.html (ARIA roles, labels, tab indices)."""
+    assert os.path.exists("index.html")
+    with open("index.html", "r", encoding="utf-8") as f:
+        html = f.read()
 
-def test_rate_limiting(client):
-    # Make 11 requests to login endpoint to trigger rate limits (limit is 10)
-    for i in range(11):
-        res = client.post("/api/auth/login", json={
-            "username": f"user_{i}",
-            "password": "password123"
-        })
-        if i >= 10:
-            assert res.status_code == 429
-            assert "Too many requests" in res.get_json()["error"]
+    parser = StaticHTMLParser()
+    parser.feed(html)
 
-def test_log_action_and_level_up(client):
-    # Register & login
-    client.post("/api/auth/register", json={
-        "username": "action_test",
-        "email": "action@test.com",
-        "password": "password123"
-    })
-    
-    # 1. Log a valid predefined action
-    res = client.post("/api/user/log_action", json={
-        "action_name": "Walking instead of driving"
-    })
-    assert res.status_code == 200
-    data = res.get_json()
-    assert data["xp_earned"] == 50
-    assert data["co2_saved"] == 1.2
-    assert data["coins_earned"] == 10
-    assert data["user"]["xp"] == 50
-    assert data["user"]["eco_coins"] == 110
-    
-    # 2. Log custom action (gets default rewards: co2=0.5, xp=20, coins=5)
-    res = client.post("/api/user/log_action", json={
-        "action_name": "Composted kitchen scraps"
-    })
-    assert res.status_code == 200
-    assert res.get_json()["xp_earned"] == 20
-    
-    # 3. Trigger multiple actions to level up (needs 100 XP to level up from Level 1)
-    # Current user XP = 70. Log planting trees (+100 XP)
-    res = client.post("/api/user/log_action", json={
-        "action_name": "Planting trees"
-    })
-    assert res.status_code == 200
-    data = res.get_json()
-    assert data["leveled_up"] is True
-    assert data["user"]["level"] == 2
-    assert data["user"]["xp"] == 70  # (70 + 100) - 100 = 70
-    assert "First Step" in data["user"]["achievements"]
+    # 1. Single H1 heading
+    assert parser.h1_count == 1, "There should be exactly one h1 tag on the page for SEO & screen readers"
 
-def test_quests(client):
-    # Register & login
-    client.post("/api/auth/register", json={
-        "username": "quest_test",
-        "email": "quest@test.com",
-        "password": "password123"
-    })
-    
-    # Get active quests
-    res = client.get("/api/user/quests")
-    assert res.status_code == 200
-    quests = res.get_json()
-    assert len(quests) == 3
-    
-    quest_to_complete = quests[0]
-    assert quest_to_complete["completed"] is False
-    
-    # Complete the quest
-    res = client.post("/api/user/quests/complete", json={
-        "quest_id": quest_to_complete["_id"]
-    })
-    assert res.status_code == 200
-    data = res.get_json()
-    assert data["success"] == "Quest completed!"
-    
-    # Verify completed quest is marked completed
-    res = client.get("/api/user/quests")
-    quests_after = res.get_json()
-    completed_quests = [q for q in quests_after if q["_id"] == quest_to_complete["_id"]]
-    assert completed_quests[0]["completed"] is True
+    # 2. Canvas accessibility
+    assert "id" in parser.canvas_attrs, "Canvas element must have an id tag"
+    assert parser.canvas_attrs.get("tabindex") == "0", "Canvas must be focusable by keyboard tab sequence (tabindex=0)"
+    assert "aria-label" in parser.canvas_attrs, "Canvas must have a descriptive aria-label"
 
-def test_shop_and_leaderboard(client):
-    # Register & login
-    client.post("/api/auth/register", json={
-        "username": "shop_test",
-        "email": "shop@test.com",
-        "password": "password123"
-    })
-    
-    # 1. Try to buy something with insufficient funds (cost: 250, start balance: 100)
-    res = client.post("/api/user/shop/buy", json={
-        "item_type": "pets",
-        "item_id": "bubbles"
-    })
-    assert res.status_code == 400
-    assert "Not enough" in res.get_json()["error"]
-    
-    # 2. Buy a skin within funds (cost: 50)
-    res = client.post("/api/user/shop/buy", json={
-        "item_type": "skins",
-        "item_id": "solar"
-    })
-    assert res.status_code == 200
-    assert res.get_json()["user"]["eco_coins"] == 50
-    assert "solar" in res.get_json()["user"]["unlocked_skins"]
-    
-    # 3. Equip skin
-    res = client.post("/api/user/shop/equip", json={
-        "item_type": "skin",
-        "item_id": "solar"
-    })
-    assert res.status_code == 200
-    assert res.get_json()["user"]["active_skin"] == "solar"
-    
-    # 4. Try to equip unbought item
-    res = client.post("/api/user/shop/equip", json={
-        "item_type": "skin",
-        "item_id": "cyber"
-    })
-    assert res.status_code == 400
-    assert "not unlocked yet" in res.get_json()["error"]
+    # 3. Live announcer for notifications
+    assert len(parser.live_regions) >= 1, "Must contain at least one element with aria-live for screen announcements"
 
-    # 5. Verify leaderboard
-    res = client.get("/api/leaderboard")
-    assert res.status_code == 200
-    leaderboard = res.get_json()
-    assert len(leaderboard) >= 1
-    assert leaderboard[0]["username"] == "shop_test"
+    # 4. Form inputs must map to labels
+    input_ids = [inp.get("id") for inp in parser.inputs if inp.get("id")]
+    label_fors = [lbl.get("for") for lbl in parser.labels if lbl.get("for")]
+
+    for input_id in input_ids:
+        assert input_id in label_fors, f"Form input with id '{input_id}' is missing a corresponding label with matching 'for' attribute"
+
+    # 5. WAI-ARIA tabs navigation
+    role_tablists = [r for t, r in parser.nav_tabs if r.get("role") == "tablist"]
+    role_tabs = [r for t, r in parser.nav_tabs if r.get("role") == "tab"]
+
+    assert len(role_tablists) >= 1, "Sidebar navigation must have a tablist container role"
+    assert len(role_tabs) >= 5, "Sidebar navigation tabs must have role='tab'"
+
+def test_css_progressive_themes():
+    """Verify that CSS contains the 5 stages of the progressive green level-up theme."""
+    css_path = "static/css/style.css"
+    assert os.path.exists(css_path)
+    with open(css_path, "r", encoding="utf-8") as f:
+        css = f.read()
+
+    assert ".theme-polluted" in css, "style.css is missing .theme-polluted styling rule"
+    assert ".theme-recovering" in css, "style.css is missing .theme-recovering styling rule"
+    assert ".theme-river" in css, "style.css is missing .theme-river styling rule"
+    assert ".theme-mountain" in css, "style.css is missing .theme-mountain styling rule"
+    assert ".theme-future" in css, "style.css is missing .theme-future styling rule"
+
+def test_js_local_data_controller():
+    """Verify JS utilizes localStorage for data caching and contains the high-level preview account."""
+    js_path = "static/js/app.js"
+    assert os.path.exists(js_path)
+    with open(js_path, "r", encoding="utf-8") as f:
+        js = f.read()
+
+    assert "localStorage" in js, "app.js must utilize client-side localStorage to persist data"
+    assert "test_guardian" in js, "app.js must contain preconfigured user 'test_guardian' credentials"
+    assert "password123" in js, "app.js must contain 'password123' password check for test guardian"
